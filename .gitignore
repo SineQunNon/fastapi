@@ -1,0 +1,74 @@
+# Python 기본
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.tmp
+*.log
+*.swp
+*.bak
+
+# 가상환경
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+.conda/
+
+# FastAPI / Uvicorn
+*.db
+*.sqlite3
+*.sqlite
+*.pid
+*.coverage
+*.env
+.env.*
+
+# Pytest / Coverage
+.cache/
+.coverage
+htmlcov/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# IDE / 편집기
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 빌드 / 배포
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Docker (선택 사항)
+*.tar
+docker-compose.override.yml
+.docker/
+
+# MyPy / Type Checking
+.mypy_cache/
+.dmypy.json
+.pyre/
+.pytype/
+
+# Static / Temp Files
+tmp/
+logs/
+media/
+uploads/
+
+# FastAPI Docs 빌드 (선택)
+site/
+docs/_build/
+
+test_main.http
