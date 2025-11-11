@@ -1,13 +1,9 @@
+from routes import LoginRouter, UserRouter, PostRouter, CommentRouter
 from fastapi import FastAPI
 
 app = FastAPI()
 
-
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
-@app.get("/hello/{name}")
-async def say_hello(name: str):
-    return {"message": f"Hello {name}"}
+app.include_router(LoginRouter.router)
+app.include_router(UserRouter.router)
+app.include_router(PostRouter.router)
+app.include_router(CommentRouter.router)
