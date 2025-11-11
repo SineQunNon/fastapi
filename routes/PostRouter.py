@@ -11,9 +11,12 @@ class CreatePostRequest(BaseModel):
 @router.post("")
 async def createPost(request: CreatePostRequest):
     # TODO
-    return {"message": "게시글을 성공적으로 작성했습니다."}
+    return {"message": "게시글을 성공적으로 성공했습니다."}
 
 @router.get("")
 async def getPosts():
-    return {"message": "게시글 목록 조회를 완료했습니다."}
+    return {"message": "게시글 목록 조회를 성공했습니다."}
 
+@router.get("/{post_id}")
+async def getPost(post_id: int):
+    return {"message" : "게시글 상세 조회를 성공했습니다."}
