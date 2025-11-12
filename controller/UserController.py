@@ -64,8 +64,19 @@ class RegisterRequest(BaseModel):
         return value
 
 class UpdateUserRequest(BaseModel):
-    nickname: str | None = None
+    nickname: str
     profileImage: str | None = None
+
+    @field_validator("nickname")
+    @classmethod
+    def validateNickname(cls, value):
+        if not value:
+            raise ValueError(INVALID_NICKNAME_EMPTY)
+        if len(value) > 10:
+            raise ValueError(INVALID_NICKNAME_LENGTH)
+        if ' ' in value:
+            raise ValueError(INVALID_NICKNAME_EMPTY_SPACE)
+        return value
 
 class UserController:
     @staticmethod
@@ -100,10 +111,35 @@ class UserController:
 
     @staticmethod
     def updateUser(email: str, request: UpdateUserRequest):
-        # TODO
-        return {"message": "회원정보 수정이 완료됐습니다"}
+        if email not in userDatabase:
+            raise HTTPException(
+                status_code=404,
+                detail="사용자를 찾을 수 없습니다"
+            )
+
+        user = userDatabase[email]
+        user['nickname'] = request.nickname
+
+        if request.profileImage is not None:
+            user['profileImage'] = request.profileImage
+
+        return {
+            "message": "회원정보 성공적으로 수정했습니다",
+            "user": {
+                "email": user["email"],
+                "nickname": user["nickname"],
+                "profileImage": user["profileImage"]
+            }
+        }
 
     @staticmethod
     def deleteUser(email: str):
-        # TODO
+        if email not in userDatabase:
+            raise HTTPException(
+                status_code=404,
+                detail="사용자를 찾을 수 없습니다"
+            )
+
+        del userDatabase[email]
+
         return {"message": "회원정보가 성공적으로 삭제되었습니다"}
