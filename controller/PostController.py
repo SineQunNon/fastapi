@@ -11,6 +11,7 @@ postDatabase = {
         "authorEmail": "dleck28@gmail.com",
         "postImage": None,
         "createdAt": datetime.now().isoformat(),
+        "modifiedAt": datetime.now().isoformat(),
         "likes": 0,
         "views": 0,
     },
@@ -21,6 +22,7 @@ postDatabase = {
         "authorEmail": "dleck28@gmail.com",
         "postImage": None,
         "createdAt": datetime.now().isoformat(),
+        "modifiedAt": datetime.now().isoformat(),
         "likes": 0,
         "views": 0,
     },
@@ -91,6 +93,7 @@ class PostController:
             "authorEmail": request.authorEmail,
             "postImage": request.postImage,
             "createdAt": datetime.now().isoformat(),
+            "modifiedAt": datetime.now().isoformat(),
             "likes": 0,
             "views": 0,
         }
@@ -111,6 +114,7 @@ class PostController:
                 "authorEmail": post["authorEmail"],
                 "postImage": post["postImage"],
                 "createdAt": post["createdAt"],
+                "modifiedAt": post["modifiedAt"],
                 "likes": post["likes"],
                 "views": post["views"],
             })
@@ -143,6 +147,7 @@ class PostController:
         post = postDatabase[post_id]
         post['title'] = request.title
         post['content'] = request.content
+        post['modifiedAt'] = datetime.now().isoformat()
         if request.postImage is not None:
             post['postImage'] = request.postImage
 
