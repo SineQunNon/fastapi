@@ -19,6 +19,9 @@
 ## 2차 요구 사항
 ### Route/Controller 분리
 - [x] 로그인 route/controller 분리
+- [x] 회원정보 route/contrller 분리
+- [x] 게시글 route/controller 분리
+- [x] 댓글 route/controller 분리
 ---
 ## 기능 요구 사항
 ### 로그인 
