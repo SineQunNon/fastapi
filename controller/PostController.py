@@ -1,5 +1,6 @@
 from datetime import datetime
 
+from fastapi import HTTPException
 from pydantic import BaseModel, field_validator
 
 postDatabase = {
@@ -102,7 +103,16 @@ class PostController:
 
     @staticmethod
     def getPost(post_id: int):
-        return {"message": "게시글 상세 정보를 성공적으로 조회했습니다"}
+        if post_id not in postDatabase:
+            raise HTTPException(
+                status_code=404,
+                detail="게시글을 찾을 수 없습니다"
+            )
+        post = postDatabase[post_id]
+        return {
+            "message": "게시글 상세 정보를 성공적으로 조회했습니다",
+            "post": post
+        }
 
     @staticmethod
     def updatePost(post_id: int, request: UpdatePostRequest):
