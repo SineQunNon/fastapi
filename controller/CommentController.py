@@ -70,8 +70,21 @@ class CommentController:
 
     @staticmethod
     def getComments(post_id: int):
-        # TODO
-        return {"message" : "댓글 조회를 성공적으로 마쳤습니다"}
+        if post_id not in postDatabase:
+            raise HTTPException(
+                status_code=404,
+                detail="게시글을 찾을 수 없습니다"
+            )
+        post_comments = []
+
+        for comment in commentDatabase.values():
+            if comment["post_id"] == post_id:
+                post_comments.append(comment)
+        return {
+            "message" : "댓글 조회를 성공적으로 마쳤습니다",
+            "comments" : post_comments,
+            "total" : len(post_comments)
+        }
 
     @staticmethod
     def updateComment(comment_id: int, request: UpdateCommentRequest):
