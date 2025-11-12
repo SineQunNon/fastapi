@@ -153,4 +153,10 @@ class PostController:
 
     @staticmethod
     def deletePost(post_id: int):
+        if post_id not in postDatabase:
+            raise HTTPException(
+                status_code=404,
+                detail="게시글을 찾을 수 없습니다"
+            )
+        del postDatabase[post_id]
         return {"message": "게시글을 성공적으로 삭제했습니다"}
