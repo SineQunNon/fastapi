@@ -88,8 +88,19 @@ class CommentController:
 
     @staticmethod
     def updateComment(comment_id: int, request: UpdateCommentRequest):
-        # TODO
-        return {"message": "댓글 수정을 성공적으로 완료했습니다"}
+        if comment_id not in commentDatabase:
+            raise HTTPException(
+                status_code=404,
+                detail="댓글을 찾을 수 없습니다"
+            )
+        comment = commentDatabase[comment_id]
+        comment["content"] = request.content
+        comment["modifiedAt"] = datetime.now().isoformat()
+
+        return {
+            "message": "댓글 수정을 성공적으로 완료했습니다",
+            "comment" : comment
+        }
 
     @staticmethod
     def deleteComment(comment_id: int):
