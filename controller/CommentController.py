@@ -12,7 +12,7 @@ class CommentController:
     @staticmethod
     def createComment(request: CreateCommentRequest):
         # TODO
-        return {"message": "댓글 작성을 성공적으로 완료했습니다."}
+        return {"message": "댓글 작성을 성공적으로 완료했습니다"}
 
     @staticmethod
     def getComments(post_id: int):
