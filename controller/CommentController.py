@@ -104,5 +104,12 @@ class CommentController:
 
     @staticmethod
     def deleteComment(comment_id: int):
-        # TODO
+        if comment_id not in commentDatabase:
+            raise HTTPException(
+                status_code=404,
+                detail="댓글을 찾을 수 없습니다"
+            )
+
+        del commentDatabase[comment_id]
+
         return {"message": "댓글을 성공적으로 삭제했습니다"}
