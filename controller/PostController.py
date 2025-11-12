@@ -58,6 +58,25 @@ class UpdatePostRequest(BaseModel):
     content: str
     postImage: str | None = None
 
+    @field_validator('title')
+    @classmethod
+    def valiateTitle(cls, value):
+        if not value or not value.strip():
+            raise ValueError("제목을 입력해주세요")
+
+        if len(value) > 26:
+            raise ValueError("제목은 26자 이하여야 합니다")
+
+        return value
+
+    @field_validator("content")
+    @classmethod
+    def validateContent(cls, value):
+        if not value or not value.strip():
+            raise ValueError("게시글 내용을 입력해주세요")
+
+        return value
+
 class PostController:
     @staticmethod
     def createPost(request: CreatePostRequest):
@@ -116,7 +135,21 @@ class PostController:
 
     @staticmethod
     def updatePost(post_id: int, request: UpdatePostRequest):
-        return {"message": "게시글을 성공적으로 수정했습니다"}
+        if post_id not in postDatabase:
+            raise HTTPException(
+                status_code=404,
+                detail="게시글을 찾을 수 없습니다"
+            )
+        post = postDatabase[post_id]
+        post['title'] = request.title
+        post['content'] = request.content
+        if request.postImage is not None:
+            post['postImage'] = request.postImage
+
+        return {
+            "message": "게시글을 성공적으로 수정했습니다",
+            "post": post
+        }
 
     @staticmethod
     def deletePost(post_id: int):
