@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from controller.LoginController import LoginController, LoginRequest
+from controllers.LoginController import LoginController, LoginRequest
 
 router = APIRouter(prefix="/login", tags=["login"])
 
