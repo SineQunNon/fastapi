@@ -10,6 +10,35 @@ INVALID_NICKNAME_EMPTY = "닉네임을 입력해주세요"
 INVALID_NICKNAME_EMPTY_SPACE = "닉네임에 공백을 포함할 수 없습니다"
 INVALID_NICKNAME_LENGTH = "닉네임은 10자 이하여야 합니다"
 
+class LoginRequest(BaseModel):
+    """로그인 요청 DTO"""
+    email: EmailStr
+    password: str
+
+    @field_validator('email')
+    @classmethod
+    def validate_email(cls, value):
+        if not value or not value.strip():
+            raise ValueError(INVALID_EMAIL_FORM)
+        return value
+
+    @field_validator('password')
+    @classmethod
+    def validate_password(cls, value):
+        if not value or not value.strip():
+            raise ValueError(INVALID_PASSWORD_EMPTY)
+        if len(value) < 8 or len(value) > 20:
+            raise ValueError(INVALID_PASSWORD_FORM)
+        if not re.search(r'[A-Z]', value):
+            raise ValueError(INVALID_PASSWORD_FORM)
+        if not re.search(r'[a-z]', value):
+            raise ValueError(INVALID_PASSWORD_FORM)
+        if not re.search(r'[0-9]', value):
+            raise ValueError(INVALID_PASSWORD_FORM)
+        if not re.search(r'[!@#$%^&*(),.?":{}|<>]', value):
+            raise ValueError(INVALID_PASSWORD_FORM)
+        return value
+
 class RegisterRequest(BaseModel):
     email: EmailStr
     password: str
