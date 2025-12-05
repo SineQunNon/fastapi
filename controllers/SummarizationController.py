@@ -1,9 +1,9 @@
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 from transformers import pipeline
-from controllers.PostController import postDatabase
+from models.Post import Post
 from schemas.SummarizationSchema import SummarizeRequest, SummarizePostRequest
 
-# KoBART 요약 모델 초기화 (lazy loading)
 summarizer = None
 
 def get_summarizer():
@@ -54,18 +54,17 @@ class SummarizationController:
             )
 
     @staticmethod
-    def summarize_post(request: SummarizePostRequest):
+    def summarize_post(request: SummarizePostRequest, db: Session):
         """
         게시글 요약 API - post_id로 게시글을 조회하여 요약
         """
         # 게시글 존재 여부 확인
-        if request.post_id not in postDatabase:
+        post = db.query(Post).filter(Post.post_id == request.post_id).first()
+        if not post:
             raise HTTPException(
                 status_code=404,
                 detail="게시글을 찾을 수 없습니다"
             )
-
-        post = postDatabase[request.post_id]
 
         # 제목과 내용을 합쳐서 요약
         full_text = f"{post.title}. {post.content}"
@@ -97,11 +96,13 @@ class SummarizationController:
             )
 
     @staticmethod
-    def summarize_all_posts():
+    def summarize_all_posts(db: Session):
         """
         모든 게시글 요약 - 게시글 목록을 조회하면서 간단한 요약 제공
         """
-        if not postDatabase:
+        posts = db.query(Post).all()
+
+        if not posts:
             return {
                 "message": "요약할 게시글이 없습니다",
                 "summaries": []
@@ -111,7 +112,7 @@ class SummarizationController:
             model = get_summarizer()
             summaries = []
 
-            for post_id, post in postDatabase.items():
+            for post in posts:
                 full_text = f"{post.title}. {post.content}"
 
                 # 짧은 요약 생성
@@ -123,13 +124,13 @@ class SummarizationController:
                 )
 
                 summaries.append({
-                    "post_id": post_id,
+                    "post_id": post.post_id,
                     "title": post.title,
                     "author_email": post.author_email,
                     "summary": summary[0]['summary_text'],
                     "views": post.views,
                     "likes": post.likes,
-                    "created_at": post.createdAt
+                    "created_at": post.createdAt.isoformat() if post.createdAt else None
                 })
 
             return {
