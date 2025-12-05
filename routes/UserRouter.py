@@ -8,6 +8,10 @@ router = APIRouter(prefix="/api/users", tags=["user"])
 async def register(request: RegisterRequest):
     return UserController.register(request)
 
+@router.get("/")
+async def getUsers():
+    return UserController.getUsers()
+
 @router.get("/{email}")
 async def getUser(email: str):
     return UserController.getUser(email)

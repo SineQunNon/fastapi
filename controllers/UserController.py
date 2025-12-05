@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 
 from models.User import User
-from schemas.UserSchema import RegisterRequest, UpdateUserRequest, UpdateNicknameRequest
+from schemas.UserSchema import RegisterRequest, UpdateUserRequest, UpdateNicknameRequest, UpdatePasswordRequest
 
 userDatabase = {}
 
@@ -36,6 +36,7 @@ class UserController:
 
     @staticmethod
     def getUser(email: str):
+        print(userDatabase)
         if email not in userDatabase:
             raise HTTPException(
                 status_code=404,
@@ -43,6 +44,7 @@ class UserController:
             )
 
         user = userDatabase[email]
+
         return {
             "email": user.email,
             "nickname": user.nickname
@@ -63,8 +65,8 @@ class UserController:
             "message": "닉네임을 성공적으로 수정했습니다"
         }
 
-    @classmethod
-    def updatePassword(cls, request):
+    @staticmethod
+    def updatePassword(request: UpdatePasswordRequest):
         if request.email not in userDatabase:
             raise HTTPException(
                 status_code=404,
@@ -72,12 +74,6 @@ class UserController:
             )
 
         user = userDatabase[request.email]
-        if not user.verify_password(request.current_password):
-            raise HTTPException(
-                status_code=401,
-                detail="현재 비밀번호가 일치하지 않습니다"
-            )
-
         if request.new_password != request.new_password_confirm:
             raise HTTPException(
                 status_code=400,
@@ -123,3 +119,7 @@ class UserController:
         del userDatabase[email]
 
         return {"message": "회원정보가 성공적으로 삭제되었습니다"}
+
+    @classmethod
+    def getUsers(cls):
+        return userDatabase
