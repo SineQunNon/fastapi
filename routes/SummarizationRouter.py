@@ -1,6 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 from schemas.SummarizationSchema import SummarizeRequest, SummarizePostRequest
 from controllers.SummarizationController import SummarizationController
+from db.database import get_db
 
 router = APIRouter(prefix="/api/summarization", tags=["summarization"])
 
@@ -18,7 +20,7 @@ async def summarize_text(request: SummarizeRequest):
 
 
 @router.post("/post", status_code=200)
-async def summarize_post(request: SummarizePostRequest):
+async def summarize_post(request: SummarizePostRequest, db: Session = Depends(get_db)):
     """
     게시글 요약 API - post_id로 게시글을 조회하여 요약
 
@@ -26,14 +28,14 @@ async def summarize_post(request: SummarizePostRequest):
     - **max_length**: 요약 최대 길이 (기본값: 150)
     - **min_length**: 요약 최소 길이 (기본값: 50)
     """
-    return SummarizationController.summarize_post(request)
+    return SummarizationController.summarize_post(request, db)
 
 
 @router.get("/posts", status_code=200)
-async def summarize_all_posts():
+async def summarize_all_posts(db: Session = Depends(get_db)):
     """
     모든 게시글 요약 API
 
     모든 게시글의 제목과 내용을 요약하여 반환합니다.
     """
-    return SummarizationController.summarize_all_posts()
+    return SummarizationController.summarize_all_posts(db)

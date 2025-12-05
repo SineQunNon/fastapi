@@ -1,14 +1,14 @@
 from fastapi import HTTPException
+from sqlalchemy.orm import Session
 
 from models.User import User
 from schemas.UserSchema import RegisterRequest, UpdateUserRequest, UpdateNicknameRequest, UpdatePasswordRequest
 
-userDatabase = {}
-
 class UserController:
     @staticmethod
-    def register(request: RegisterRequest):
-        if request.email in userDatabase:
+    def register(request: RegisterRequest, db: Session):
+        existing_user = db.query(User).filter(User.email == request.email).first()
+        if existing_user:
             raise HTTPException(
                 status_code=409,
                 detail="중복된 이메일입니다"
@@ -27,7 +27,9 @@ class UserController:
             profileImage=request.profileImage
         )
 
-        userDatabase[request.email] = user
+        db.add(user)
+        db.commit()
+        db.refresh(user)
 
         return {
             "message": "회원가입에 성공했습니다",
@@ -35,15 +37,13 @@ class UserController:
         }
 
     @staticmethod
-    def getUser(email: str):
-        print(userDatabase)
-        if email not in userDatabase:
+    def getUser(email: str, db: Session):
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
             raise HTTPException(
                 status_code=404,
                 detail="존재하지 않는 회원입니다."
             )
-
-        user = userDatabase[email]
 
         return {
             "email": user.email,
@@ -51,29 +51,30 @@ class UserController:
         }
 
     @staticmethod
-    def updateNickname(request: UpdateNicknameRequest):
-        if request.email not in userDatabase:
+    def updateNickname(request: UpdateNicknameRequest, db: Session):
+        user = db.query(User).filter(User.email == request.email).first()
+        if not user:
             raise HTTPException(
                 status_code=404,
                 detail="사용자를 찾을 수 없습니다"
             )
 
-        user = userDatabase[request.email]
         user.update_nickname(request.nickname)
+        db.commit()
 
         return {
             "message": "닉네임을 성공적으로 수정했습니다"
         }
 
     @staticmethod
-    def updatePassword(request: UpdatePasswordRequest):
-        if request.email not in userDatabase:
+    def updatePassword(request: UpdatePasswordRequest, db: Session):
+        user = db.query(User).filter(User.email == request.email).first()
+        if not user:
             raise HTTPException(
                 status_code=404,
                 detail="사용자를 찾을 수 없습니다"
             )
 
-        user = userDatabase[request.email]
         if request.new_password != request.new_password_confirm:
             raise HTTPException(
                 status_code=400,
@@ -81,45 +82,52 @@ class UserController:
             )
 
         user.update_password(request.new_password)
+        db.commit()
+
         return {
             "message": "비밀번호를 성공적으로 수정했습니다"
         }
 
     @staticmethod
-    def updateUser(email: str, request: UpdateUserRequest):
-        if email not in userDatabase:
+    def updateUser(email: str, request: UpdateUserRequest, db: Session):
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
             raise HTTPException(
                 status_code=404,
                 detail="사용자를 찾을 수 없습니다"
             )
 
-        user = userDatabase[email]
-        user['nickname'] = request.nickname
-
+        user.nickname = request.nickname
         if request.profileImage is not None:
-            user['profileImage'] = request.profileImage
+            user.profileImage = request.profileImage
+
+        db.commit()
+        db.refresh(user)
 
         return {
             "message": "회원정보 성공적으로 수정했습니다",
             "user": {
-                "email": user["email"],
-                "nickname": user["nickname"],
-                "profileImage": user["profileImage"]
+                "email": user.email,
+                "nickname": user.nickname,
+                "profileImage": user.profileImage
             }
         }
 
     @staticmethod
-    def deleteUser(email: str):
-        if email not in userDatabase:
+    def deleteUser(email: str, db: Session):
+        user = db.query(User).filter(User.email == email).first()
+        if not user:
             raise HTTPException(
                 status_code=404,
                 detail="사용자를 찾을 수 없습니다"
             )
 
-        del userDatabase[email]
+        db.delete(user)
+        db.commit()
 
         return {"message": "회원정보가 성공적으로 삭제되었습니다"}
 
-    @classmethod
-    def getUsers(cls):
-        return userDatabase
+    @staticmethod
+    def getUsers(db: Session):
+        users = db.query(User).all()
+        return {user.email: user for user in users}
